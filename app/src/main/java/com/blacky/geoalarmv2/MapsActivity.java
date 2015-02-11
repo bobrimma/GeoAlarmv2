@@ -1,5 +1,7 @@
 package com.blacky.geoalarmv2;
 
+import android.content.Intent;
+import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -10,6 +12,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -32,6 +35,7 @@ public class MapsActivity extends FragmentActivity implements
     private Button locateButton;
     private LocationRequest locationRequest;
     private Marker marker;
+    final static String COORDINATE = "COORDINATE";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -52,6 +56,7 @@ public class MapsActivity extends FragmentActivity implements
                 .build();
         apiClient.connect();
         setUpMapIfNeeded();
+        int gFenceTransType = Geofence.GEOFENCE_TRANSITION_ENTER;
         /*locateButton = (Button) findViewById(R.id.locateMeButton);
         locateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +81,17 @@ public class MapsActivity extends FragmentActivity implements
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
         }
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                Point projPoint = mMap.getProjection().toScreenLocation(latLng);
+                Toast.makeText(getApplicationContext(), latLng.toString() + '\n' + projPoint, Toast.LENGTH_SHORT)
+                        .show();
+                Intent newAlarm = new Intent(getApplicationContext(), NewAlarmActivity.class)
+                        .putExtra(COORDINATE,latLng);
+                startActivity(newAlarm);
+            }
+        });
         locationRequest = new LocationRequest()
                 .setInterval(7000)
                 .setFastestInterval(5000)
@@ -85,30 +101,30 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onConnected(Bundle bundle) {
         myLocation = LocationServices.FusedLocationApi.getLastLocation(apiClient);
-        if (myLocation != null){
-            myLatLng = new LatLng(myLocation.getLatitude(),myLocation.getLongitude());
+        if (myLocation != null) {
+            myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
             marker = mMap.addMarker(new MarkerOptions()
                     .title("I'm here!")
                     .position(myLatLng));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng,14));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 14));
         }
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Toast.makeText(getApplicationContext(),"Connection suspended", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Connection suspended", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Toast.makeText(getApplicationContext(),"Connection failed", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Connection failed", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(getApplicationContext(),"Location changed", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Location changed", Toast.LENGTH_SHORT).show();
         marker.remove();
-        myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
+        myLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         marker = mMap.addMarker(new MarkerOptions()
                 .title("I'm here!")
                 .position(myLatLng));
