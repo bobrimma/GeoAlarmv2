@@ -6,12 +6,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 
 public class NewAlarmActivity extends ActionBarActivity {
 
     LatLng position;
+    GoogleMap smallMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +23,8 @@ public class NewAlarmActivity extends ActionBarActivity {
         setContentView(R.layout.activity_new_alarm);
         position = getIntent().getParcelableExtra(MapsActivity.COORDINATE);
         ((TextView)findViewById(R.id.location_coords)).setText(position.toString());
+        smallMap = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.smallMap)).getMap();
+        smallMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
     }
 
 

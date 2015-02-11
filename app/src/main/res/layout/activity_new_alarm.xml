@@ -8,6 +8,29 @@
 
     <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/location_coords"/>
+        android:id="@+id/location_coords"
+        android:labelFor="@+id/alarmTime"
+        android:layout_alignTop="@+id/alarmTime"
+        android:layout_toStartOf="@+id/alarmTime" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="time"
+        android:ems="10"
+        android:id="@+id/alarmTime"
+        android:layout_marginTop="38dp"
+        android:layout_below="@id/smallMap"
+        android:layout_alignEnd="@id/smallMap" />
+
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:id="@+id/smallMap"
+        android:layout_alignParentTop="true"
+        class="com.google.android.gms.maps.MapFragment"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

@@ -78,8 +78,7 @@ public class MapsActivity extends FragmentActivity implements
 
     private void setUpMapIfNeeded() {
         if (mMap == null) {
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+            mMap = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
         }
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
