@@ -4,27 +4,49 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.widget.SeekBar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class NewAlarmActivity extends ActionBarActivity {
+public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCallback {
 
     LatLng position;
-    GoogleMap smallMap;
+    MapFragment smallMapFragment;
+    SeekBar radiusSeek;
+    Circle radius;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_alarm);
         position = getIntent().getParcelableExtra(MapsActivity.COORDINATE);
-        ((TextView)findViewById(R.id.location_coords)).setText(position.toString());
-        smallMap = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.smallMap)).getMap();
-        smallMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
+        smallMapFragment = ((MapFragment)getFragmentManager().findFragmentById(R.id.smallMap));
+        smallMapFragment.getMapAsync(this);
+        radiusSeek = (SeekBar) findViewById(R.id.seekBar);
+        radiusSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                radius.setRadius(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
 
@@ -48,5 +70,15 @@ public class NewAlarmActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        googleMap.setMyLocationEnabled(false);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
+        googleMap.addMarker(new MarkerOptions()
+                .title("New alarm")
+                .position(position));
+        radius = googleMap.addCircle(new CircleOptions().center(position).radius(10));
     }
 }
