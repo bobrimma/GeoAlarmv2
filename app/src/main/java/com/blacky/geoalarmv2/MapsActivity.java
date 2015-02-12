@@ -12,12 +12,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -26,7 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener, OnMapReadyCallback {
 
     private GoogleMap mMap;
     private GoogleApiClient apiClient;
@@ -56,7 +56,6 @@ public class MapsActivity extends FragmentActivity implements
                 .build();
         apiClient.connect();
         setUpMapIfNeeded();
-        int gFenceTransType = Geofence.GEOFENCE_TRANSITION_ENTER;
         /*locateButton = (Button) findViewById(R.id.locateMeButton);
         locateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,21 +76,11 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     private void setUpMapIfNeeded() {
+        SupportMapFragment mMapFrag;
         if (mMap == null) {
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+            mMapFrag = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map));
+            mMapFrag.getMapAsync(this);
         }
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                Point projPoint = mMap.getProjection().toScreenLocation(latLng);
-                Toast.makeText(getApplicationContext(), latLng.toString() + '\n' + projPoint, Toast.LENGTH_SHORT)
-                        .show();
-                Intent newAlarm = new Intent(getApplicationContext(), NewAlarmActivity.class)
-                        .putExtra(COORDINATE,latLng);
-                startActivity(newAlarm);
-            }
-        });
         locationRequest = new LocationRequest()
                 .setInterval(7000)
                 .setFastestInterval(5000)
@@ -128,5 +117,21 @@ public class MapsActivity extends FragmentActivity implements
         marker = mMap.addMarker(new MarkerOptions()
                 .title("I'm here!")
                 .position(myLatLng));
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                Point projPoint = mMap.getProjection().toScreenLocation(latLng);
+                Toast.makeText(getApplicationContext(), latLng.toString() + '\n' + projPoint, Toast.LENGTH_SHORT)
+                        .show();
+                Intent newAlarm = new Intent(getApplicationContext(), NewAlarmActivity.class)
+                        .putExtra(COORDINATE,latLng);
+                startActivity(newAlarm);
+            }
+        });
     }
 }
