@@ -29,19 +29,21 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
     public static final int ACTION_REMOVE = 1;
     private int action;
     private GoogleApiClient locationClient;
-    private GeofencingRequest gfRequest;
     List<Geofence> gfList = new ArrayList<>();
     List<String> gfToRemove = new ArrayList<>();
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public GeofencingService() {
         locationClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
         locationClient.connect();
+    }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LOG_TAG, "Location service started");
         action = intent.getIntExtra(EXTRA_ACTION, -1);
         switch (action) {
             case ACTION_ADD: {
@@ -50,17 +52,12 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
                 break;
             }
             case ACTION_REMOVE: {
-
-            }
-            default: {
-
+                gfToRemove = intent.getStringArrayListExtra(EXTRA_REQUEST_IDS);
+                break;
             }
         }
 
         return super.onStartCommand(intent, flags, startId);
-    }
-
-    public GeofencingService() {
     }
 
     @Override
@@ -70,9 +67,11 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
 
     @Override
     public void onConnected(Bundle bundle) {
+        Log.d(LOG_TAG, "Location client connected");
         switch (action) {
             case ACTION_ADD: {
-                Log.d(LOG_TAG, "Adding geofences to the client");
+                Log.d(LOG_TAG, "Adding geofence to the client");
+                GeofencingRequest gfRequest;
                 gfRequest = new GeofencingRequest.Builder().addGeofences(gfList).build();
                 LocationServices.GeofencingApi
                         .addGeofences(locationClient, gfRequest, getPendingIntent())
@@ -100,6 +99,7 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
                                 }
                             }
                         });
+                break;
             }
         }
     }

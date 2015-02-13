@@ -20,6 +20,9 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCallback {
 
@@ -40,17 +43,28 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
         final Switch alarmOn = (Switch) findViewById(R.id.alarmOn);
         addButton = (Button) findViewById(R.id.addButton);
         radiusSeek = (SeekBar) findViewById(R.id.seekBar);
-        addButton.setOnClickListener(new View.OnClickListener() {
+        alarmOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final int gfTransType = Geofence.GEOFENCE_TRANSITION_ENTER;
-                float radius = radiusSeek.getProgress();
-                GAGeofence geofence = new GAGeofence(gfId, alarmOn.isEnabled(), position, radius, gfTransType);
-                Intent startGFService = new Intent(getApplicationContext(), GeofencingService.class);
-                startGFService.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_ADD);
-                startGFService.putExtra(GeofencingService.EXTRA_GEOFENCE, geofence);
-                gfId++;
-                startService(startGFService);
+                if (alarmOn.isChecked()){
+                    final int gfTransType = Geofence.GEOFENCE_TRANSITION_ENTER;
+                    float radius = radiusSeek.getProgress();
+                    GAGeofence geofence = new GAGeofence(gfId, alarmOn.isEnabled(), position, radius, gfTransType);
+                    Intent startGFService = new Intent(getApplicationContext(), GeofencingService.class);
+                    startGFService.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_ADD);
+                    startGFService.putExtra(GeofencingService.EXTRA_GEOFENCE, geofence);
+                    gfId++;
+                    startService(startGFService);
+                }
+                else{
+                    List<String> requestIds = new ArrayList<>();
+                    requestIds.add(String.valueOf(gfId));
+                    Intent serviceRemoveGF = new Intent(getApplicationContext(), GeofencingService.class);
+                    serviceRemoveGF.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_REMOVE);
+                    serviceRemoveGF.putStringArrayListExtra(GeofencingService.EXTRA_REQUEST_IDS,
+                            (ArrayList<String>) requestIds);
+                    startService(serviceRemoveGF);
+                }
             }
         });
         radiusSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

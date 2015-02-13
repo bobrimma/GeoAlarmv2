@@ -14,7 +14,8 @@
         android:textSize="24sp"
         android:layout_marginTop="25dp"
         android:layout_below="@+id/alarmOn"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:textColor="#000000" />
 
     <fragment
         android:layout_width="match_parent"
@@ -42,7 +43,7 @@
         android:text="Включен"
         android:id="@+id/alarmOn"
         android:textSize="24sp"
-        android:checked="true"
+        android:checked="false"
         android:enabled="true"
         android:layout_marginTop="20dp"
         android:layout_below="@+id/smallMap"
