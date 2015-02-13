@@ -9,6 +9,8 @@ import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
@@ -72,11 +74,32 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
             case ACTION_ADD: {
                 Log.d(LOG_TAG, "Adding geofences to the client");
                 gfRequest = new GeofencingRequest.Builder().addGeofences(gfList).build();
-                LocationServices.GeofencingApi.addGeofences(locationClient, gfRequest, getPendingIntent());
+                LocationServices.GeofencingApi
+                        .addGeofences(locationClient, gfRequest, getPendingIntent())
+                        .setResultCallback(new ResultCallback<Status>() {
+                            @Override
+                            public void onResult(Status status) {
+                                if (status.isSuccess()){
+                                    locationClient.disconnect();
+                                    stopSelf();
+                                }
+                            }
+                        });
                 break;
             }
             case ACTION_REMOVE:{
                 Log.d(LOG_TAG, "Removing gf-s from the client");
+                LocationServices.GeofencingApi
+                        .removeGeofences(locationClient, gfToRemove)
+                        .setResultCallback(new ResultCallback<Status>() {
+                            @Override
+                            public void onResult(Status status) {
+                                if (status.isSuccess()){
+                                    locationClient.disconnect();
+                                    stopSelf();
+                                }
+                            }
+                        });
             }
         }
     }

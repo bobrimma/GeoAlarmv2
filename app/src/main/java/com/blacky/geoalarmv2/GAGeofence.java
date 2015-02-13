@@ -24,7 +24,7 @@ public class GAGeofence implements Serializable {
         return new Geofence.Builder()
                 .setRequestId(String.valueOf(id))
                 .setTransitionTypes(transType)
-                .setExpirationDuration(60000)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setCircularRegion(location.latitude, location.longitude, radius)
                 .build();
     }
