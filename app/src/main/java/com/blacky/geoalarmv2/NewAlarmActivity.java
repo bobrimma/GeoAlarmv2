@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
@@ -42,11 +43,24 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
         smallMapFragment.getMapAsync(this);
         final Switch alarmOn = (Switch) findViewById(R.id.alarmOn);
         addButton = (Button) findViewById(R.id.addButton);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CircleSerial circle =
+                        new CircleSerial(position.latitude, position.longitude, radius.getRadius());
+                Intent addAlarm = new Intent(getApplicationContext(), MapsActivity.class);
+                addAlarm.putExtra(MapsActivity.CIRCLE, circle);
+                addAlarm.putExtra(MapsActivity.ACTION, MapsActivity.ALARM_ADD);
+                startActivity(addAlarm);
+            }
+        });
         radiusSeek = (SeekBar) findViewById(R.id.seekBar);
+
         alarmOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
+                if (isChecked) {
+                    radiusSeek.setEnabled(false);
                     final int gfTransType = Geofence.GEOFENCE_TRANSITION_ENTER;
                     float radius = radiusSeek.getProgress();
                     GAGeofence geofence = new GAGeofence
@@ -56,8 +70,8 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
                     startGFService.putExtra(GeofencingService.EXTRA_GEOFENCE, geofence);
                     gfId++;
                     startService(startGFService);
-                }
-                else{
+                } else {
+                    radiusSeek.setEnabled(true);
                     List<String> requestIds = new ArrayList<>();
                     requestIds.add(String.valueOf(gfId));
                     Intent serviceRemoveGF = new Intent(getApplicationContext(), GeofencingService.class);
@@ -111,6 +125,6 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
         googleMap.addMarker(new MarkerOptions()
                 .title("New alarm")
                 .position(position));
-        radius = googleMap.addCircle(new CircleOptions().center(position).radius(10));
+        radius = googleMap.addCircle(new CircleOptions().center(position).radius(50));
     }
 }

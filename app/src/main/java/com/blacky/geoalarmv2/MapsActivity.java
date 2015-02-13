@@ -1,48 +1,44 @@
 package com.blacky.geoalarmv2;
 
 import android.content.Intent;
-import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+    public static final String ACTION = "action";
+    public static final String ALARM_ADD = "alarmAdd";
+    public static final String CIRCLE = "circle";
     private GoogleMap mMap;
     private GoogleApiClient apiClient;
     private Location myLocation;
     private LatLng myLatLng;
-    private Button locateButton;
-    private LocationRequest locationRequest;
     private Marker marker;
     final static String COORDINATE_TAG = "COORDINATE";
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_activity_actions, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+    List<Circle> circleList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +55,6 @@ public class MapsActivity extends FragmentActivity implements
         } else Toast.makeText(this, R.string.goops_error, Toast.LENGTH_SHORT).show();
     }
 
-    protected void locationRequest() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -75,17 +67,12 @@ public class MapsActivity extends FragmentActivity implements
             mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                 @Override
                 public void onMapLongClick(LatLng latLng) {
-                    Point projPoint = mMap.getProjection().toScreenLocation(latLng);
                     Intent newAlarm = new Intent(getApplicationContext(), NewAlarmActivity.class)
                             .putExtra(COORDINATE_TAG, latLng);
                     startActivity(newAlarm);
                 }
             });
         }
-//        locationRequest = new LocationRequest()
-//                .setInterval(7000)
-//                .setFastestInterval(5000)
-//                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override
@@ -98,6 +85,11 @@ public class MapsActivity extends FragmentActivity implements
                     .position(myLatLng));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 14));
         }
+        if (getIntent().getStringExtra(ACTION) != null)
+            if (getIntent().getStringExtra(ACTION).equals(ALARM_ADD)) {
+                CircleSerial circle = (CircleSerial) getIntent().getSerializableExtra(CIRCLE);
+                circleList.add(mMap.addCircle(circle.toCircleOpts()));
+            }
     }
 
     @Override
@@ -112,11 +104,28 @@ public class MapsActivity extends FragmentActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(getApplicationContext(), "Location changed", Toast.LENGTH_SHORT).show();
         marker.remove();
         myLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         marker = mMap.addMarker(new MarkerOptions()
                 .title("I'm here!")
                 .position(myLatLng));
+    }
+}
+
+class CircleSerial implements Serializable {
+    double latitude;
+    double longitude;
+    double radius;
+
+    CircleSerial(double latitude, double longitude, double radius) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.radius = radius;
+    }
+
+    public CircleOptions toCircleOpts() {
+        return new CircleOptions()
+                .center(new LatLng(latitude, longitude))
+                .radius(radius);
     }
 }
