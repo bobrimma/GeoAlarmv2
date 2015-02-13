@@ -11,13 +11,13 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -26,7 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, OnMapReadyCallback {
+        LocationListener {
 
     private GoogleMap mMap;
     private GoogleApiClient apiClient;
@@ -35,11 +35,10 @@ public class MapsActivity extends FragmentActivity implements
     private Button locateButton;
     private LocationRequest locationRequest;
     private Marker marker;
-    final static String COORDINATE = "COORDINATE";
+    final static String COORDINATE_TAG = "COORDINATE";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity_actions, menu);
         return super.onCreateOptionsMenu(menu);
@@ -49,20 +48,15 @@ public class MapsActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        apiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        apiClient.connect();
-        setUpMapIfNeeded();
-        /*locateButton = (Button) findViewById(R.id.locateMeButton);
-        locateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                locationRequest();
-            }
-        });*/
+        if (GooglePlayServicesUtil.isGooglePlayServicesAvailable(this) == ConnectionResult.SUCCESS) {
+            apiClient = new GoogleApiClient.Builder(this)
+                    .addApi(LocationServices.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+            apiClient.connect();
+            setUpMapIfNeeded();
+        } else Toast.makeText(this, R.string.goops_error, Toast.LENGTH_SHORT).show();
     }
 
     protected void locationRequest() {
@@ -76,15 +70,22 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     private void setUpMapIfNeeded() {
-        SupportMapFragment mMapFrag;
         if (mMap == null) {
-            mMapFrag = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map));
-            mMapFrag.getMapAsync(this);
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+            mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @Override
+                public void onMapLongClick(LatLng latLng) {
+                    Point projPoint = mMap.getProjection().toScreenLocation(latLng);
+                    Intent newAlarm = new Intent(getApplicationContext(), NewAlarmActivity.class)
+                            .putExtra(COORDINATE_TAG, latLng);
+                    startActivity(newAlarm);
+                }
+            });
         }
-        locationRequest = new LocationRequest()
-                .setInterval(7000)
-                .setFastestInterval(5000)
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        locationRequest = new LocationRequest()
+//                .setInterval(7000)
+//                .setFastestInterval(5000)
+//                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override
@@ -117,21 +118,5 @@ public class MapsActivity extends FragmentActivity implements
         marker = mMap.addMarker(new MarkerOptions()
                 .title("I'm here!")
                 .position(myLatLng));
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                Point projPoint = mMap.getProjection().toScreenLocation(latLng);
-                Toast.makeText(getApplicationContext(), latLng.toString() + '\n' + projPoint, Toast.LENGTH_SHORT)
-                        .show();
-                Intent newAlarm = new Intent(getApplicationContext(), NewAlarmActivity.class)
-                        .putExtra(COORDINATE,latLng);
-                startActivity(newAlarm);
-            }
-        });
     }
 }

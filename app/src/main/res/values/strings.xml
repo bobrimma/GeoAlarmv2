@@ -8,5 +8,6 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="goops_error">Google Play Services error. Please, install or update it.</string>
 
 </resources>

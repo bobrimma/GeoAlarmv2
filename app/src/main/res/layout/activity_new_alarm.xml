@@ -48,4 +48,14 @@
         android:layout_below="@+id/smallMap"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Добавить"
+        android:id="@+id/addButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="35dp"
+        android:layout_alignEnd="@+id/seekBar" />
+
 </RelativeLayout>
