@@ -33,17 +33,17 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
     List<String> gfToRemove = new ArrayList<>();
 
     public GeofencingService() {
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LOG_TAG, "Location service started");
         locationClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
         locationClient.connect();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LOG_TAG, "Location service started");
         action = intent.getIntExtra(EXTRA_ACTION, -1);
         switch (action) {
             case ACTION_ADD: {

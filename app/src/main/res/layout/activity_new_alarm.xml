@@ -19,7 +19,7 @@
 
     <fragment
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="200dp"
         android:name="com.google.android.gms.maps.MapFragment"
         android:id="@+id/smallMap"
         class="com.google.android.gms.maps.MapFragment"
@@ -54,9 +54,9 @@
         android:layout_height="wrap_content"
         android:text="Добавить"
         android:id="@+id/addButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="35dp"
-        android:layout_alignEnd="@+id/seekBar" />
+        android:layout_below="@+id/seekBar"
+        android:layout_marginTop="36dp"
+        android:layout_alignEnd="@+id/seekBar"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

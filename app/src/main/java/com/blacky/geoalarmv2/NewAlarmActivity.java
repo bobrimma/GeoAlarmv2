@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
 
@@ -43,13 +43,14 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
         final Switch alarmOn = (Switch) findViewById(R.id.alarmOn);
         addButton = (Button) findViewById(R.id.addButton);
         radiusSeek = (SeekBar) findViewById(R.id.seekBar);
-        alarmOn.setOnClickListener(new View.OnClickListener() {
+        alarmOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (alarmOn.isChecked()){
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
                     final int gfTransType = Geofence.GEOFENCE_TRANSITION_ENTER;
                     float radius = radiusSeek.getProgress();
-                    GAGeofence geofence = new GAGeofence(gfId, alarmOn.isEnabled(), position, radius, gfTransType);
+                    GAGeofence geofence = new GAGeofence
+                            (gfId, position.latitude, position.longitude, radius, gfTransType);
                     Intent startGFService = new Intent(getApplicationContext(), GeofencingService.class);
                     startGFService.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_ADD);
                     startGFService.putExtra(GeofencingService.EXTRA_GEOFENCE, geofence);

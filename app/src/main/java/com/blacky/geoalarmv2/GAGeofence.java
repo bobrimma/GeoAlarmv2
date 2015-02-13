@@ -1,21 +1,20 @@
 package com.blacky.geoalarmv2;
 
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
 
 public class GAGeofence implements Serializable {
     private int id;
-    private boolean enabled;
-    private LatLng location;
+    private double latitude;
+    private double longitude;
     private float radius;
     private int transType;
 
-    public GAGeofence(int id, boolean enabled, LatLng location, float radius, int transType) {
+    public GAGeofence(int id, double latitude, double longitude, float radius, int transType) {
         this.id = id;
-        this.enabled = enabled;
-        this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.radius = radius;
         this.transType = transType;
     }
@@ -25,7 +24,7 @@ public class GAGeofence implements Serializable {
                 .setRequestId(String.valueOf(id))
                 .setTransitionTypes(transType)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setCircularRegion(location.latitude, location.longitude, radius)
+                .setCircularRegion(latitude, longitude, radius)
                 .build();
     }
 }
