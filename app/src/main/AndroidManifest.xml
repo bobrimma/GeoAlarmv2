@@ -42,6 +42,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.blacky.geoalarmv2.MapsActivity" />
         </activity>
+
+        <service
+            android:name=".GeofencingService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>

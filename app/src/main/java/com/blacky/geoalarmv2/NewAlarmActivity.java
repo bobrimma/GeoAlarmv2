@@ -1,11 +1,16 @@
 package com.blacky.geoalarmv2;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.Switch;
 
+import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -18,19 +23,36 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCallback {
 
-    LatLng position;
-    MapFragment smallMapFragment;
-    SeekBar radiusSeek;
-    Circle radius;
+    private LatLng position;
+    private MapFragment smallMapFragment;
+    private SeekBar radiusSeek;
+    private Circle radius;
+    private Button addButton;
+    private int gfId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_alarm);
-        position = getIntent().getParcelableExtra(MapsActivity.COORDINATE);
-        smallMapFragment = ((MapFragment)getFragmentManager().findFragmentById(R.id.smallMap));
+        position = getIntent().getParcelableExtra(MapsActivity.COORDINATE_TAG);
+        smallMapFragment = ((MapFragment) getFragmentManager().findFragmentById(R.id.smallMap));
         smallMapFragment.getMapAsync(this);
+        final Switch alarmOn = (Switch) findViewById(R.id.alarmOn);
+        addButton = (Button) findViewById(R.id.addButton);
         radiusSeek = (SeekBar) findViewById(R.id.seekBar);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final int gfTransType = Geofence.GEOFENCE_TRANSITION_ENTER;
+                float radius = radiusSeek.getProgress();
+                GAGeofence geofence = new GAGeofence(gfId, alarmOn.isEnabled(), position, radius, gfTransType);
+                Intent startGFService = new Intent(getApplicationContext(), GeofencingService.class);
+                startGFService.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_ADD);
+                startGFService.putExtra(GeofencingService.EXTRA_GEOFENCE, geofence);
+                gfId++;
+                startService(startGFService);
+            }
+        });
         radiusSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -52,19 +74,14 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_new_alarm, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
