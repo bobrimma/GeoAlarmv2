@@ -1,5 +1,7 @@
 package com.blacky.geoalarmv2;
 
+import android.content.Intent;
+
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -20,6 +22,21 @@ public class GAGeofence implements Serializable {
         this.transType = transType;
     }
 
+    public double  getGeofenceLatitude(){
+        return location.latitude;
+    }
+
+    public double  getGeofenceLongitude(){
+        return location.longitude;
+    }
+
+    public double  getGeofenceRadius(){
+        return radius;
+    }
+
+    public boolean isEnabled(){
+        return enabled;
+    }
     public Geofence toGeofence() {
         return new Geofence.Builder()
                 .setRequestId(String.valueOf(id))
@@ -29,3 +46,5 @@ public class GAGeofence implements Serializable {
                 .build();
     }
 }
+
+

@@ -35,6 +35,8 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LOG_TAG, "onStartCommand");
+
         locationClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
@@ -70,6 +72,8 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
 
     @Override
     public void onConnected(Bundle bundle) {
+        Log.d(LOG_TAG, "onConnected");
+
         switch (action) {
             case ACTION_ADD: {
                 Log.d(LOG_TAG, "Adding geofences to the client");
@@ -115,6 +119,8 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
     }
 
     private PendingIntent getPendingIntent() {
+        Log.d(LOG_TAG, "getPendingIntent");
+
         Intent transitionService = new Intent(this, GFIntentService.class);
         return PendingIntent.getService(this, 0, transitionService, PendingIntent.FLAG_UPDATE_CURRENT);
     }

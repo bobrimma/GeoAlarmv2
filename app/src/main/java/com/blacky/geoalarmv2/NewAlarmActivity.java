@@ -7,8 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -19,6 +21,9 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCallback {
@@ -43,17 +48,30 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 final int gfTransType = Geofence.GEOFENCE_TRANSITION_ENTER;
                 float radius = radiusSeek.getProgress();
-                GAGeofence geofence = new GAGeofence(gfId, alarmOn.isEnabled(), position, radius, gfTransType);
-                Intent startGFService = new Intent(getApplicationContext(), GeofencingService.class);
-                startGFService.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_ADD);
-                startGFService.putExtra(GeofencingService.EXTRA_GEOFENCE, geofence);
+                GAGeofence geofence = new GAGeofence
+                        (gfId, true, position, radius, gfTransType);
+                AlarmStorage.saveAlarm(geofence);
+
+                Intent addGeofence = new Intent(getApplicationContext(), GeofencingService.class);
+                addGeofence.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_ADD);
+                addGeofence.putExtra(GeofencingService.EXTRA_GEOFENCE, geofence);
                 gfId++;
-                startService(startGFService);
+                AlarmStorage.saveAlarm(geofence);
+                startService(addGeofence);
+
+
+                finish();
+                Toast.makeText(getApplicationContext(), "Alarm was saved", Toast.LENGTH_SHORT).show();
             }
         });
+
+
         radiusSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 radius.setRadius(progress);
@@ -69,24 +87,6 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
 
             }
         });
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_new_alarm, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
