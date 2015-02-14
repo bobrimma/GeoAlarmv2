@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Switch;
 
@@ -43,15 +44,24 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
         smallMapFragment.getMapAsync(this);
         final Switch alarmOn = (Switch) findViewById(R.id.alarmOn);
         addButton = (Button) findViewById(R.id.addButton);
+        final EditText alarmName = (EditText) findViewById(R.id.alarmName);
+        final EditText alarmDesc = (EditText) findViewById(R.id.alarmDesc);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 CircleSerial circle =
                         new CircleSerial(position.latitude, position.longitude, radius.getRadius());
-                Intent addAlarm = new Intent(getApplicationContext(), MapsActivity.class);
-                addAlarm.putExtra(MapsActivity.CIRCLE, circle);
-                addAlarm.putExtra(MapsActivity.ACTION, MapsActivity.ALARM_ADD);
-                startActivity(addAlarm);
+                Alarm newAlarm = new Alarm
+                        (alarmName.getText().toString(),
+                                circle.toCircleOpts(),
+                                circle.toMarkerOpts(),
+                                alarmDesc.getText().toString());
+                MapsActivity.alarmList.add(newAlarm);
+                MapsActivity.mMap.addCircle(newAlarm.region);
+                MapsActivity.mMap.addMarker(newAlarm.marker
+                        .title(newAlarm.name)
+                        .snippet(newAlarm.description));
+                finish();
             }
         });
         radiusSeek = (SeekBar) findViewById(R.id.seekBar);
@@ -110,12 +120,7 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -14,7 +14,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -32,13 +31,13 @@ public class MapsActivity extends FragmentActivity implements
     public static final String ACTION = "action";
     public static final String ALARM_ADD = "alarmAdd";
     public static final String CIRCLE = "circle";
-    private GoogleMap mMap;
+    static GoogleMap mMap;
     private GoogleApiClient apiClient;
     private Location myLocation;
     private LatLng myLatLng;
     private Marker marker;
     final static String COORDINATE_TAG = "COORDINATE";
-    List<Circle> circleList = new ArrayList<>();
+    static List<Alarm> alarmList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +87,7 @@ public class MapsActivity extends FragmentActivity implements
         if (getIntent().getStringExtra(ACTION) != null)
             if (getIntent().getStringExtra(ACTION).equals(ALARM_ADD)) {
                 CircleSerial circle = (CircleSerial) getIntent().getSerializableExtra(CIRCLE);
-                circleList.add(mMap.addCircle(circle.toCircleOpts()));
+//                alarmList.add(mMap.addCircle(circle.toCircleOpts()));
             }
     }
 
@@ -127,5 +126,24 @@ class CircleSerial implements Serializable {
         return new CircleOptions()
                 .center(new LatLng(latitude, longitude))
                 .radius(radius);
+    }
+
+    public MarkerOptions toMarkerOpts(){
+        return new MarkerOptions()
+                .position(new LatLng(latitude, longitude));
+    }
+}
+
+class Alarm{
+    String name;
+    CircleOptions region;
+    MarkerOptions marker;
+    String description;
+
+    Alarm(String name, CircleOptions region, MarkerOptions marker, String description) {
+        this.name = name;
+        this.region = region;
+        this.marker = marker;
+        this.description = description;
     }
 }
