@@ -52,14 +52,13 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
                 final int gfTransType = Geofence.GEOFENCE_TRANSITION_ENTER;
                 float radius = radiusSeek.getProgress();
                 GAGeofence geofence = new GAGeofence
-                        (gfId, true, position, radius, gfTransType);
+                        (gfId, true, position.latitude, position.longitude, radius, gfTransType);
                 AlarmStorage.saveAlarm(geofence);
 
                 Intent addGeofence = new Intent(getApplicationContext(), GeofencingService.class);
                 addGeofence.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_ADD);
                 addGeofence.putExtra(GeofencingService.EXTRA_GEOFENCE, geofence);
                 gfId++;
-                AlarmStorage.saveAlarm(geofence);
                 startService(addGeofence);
 
 

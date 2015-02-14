@@ -2,6 +2,7 @@ package com.blacky.geoalarmv2;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -61,21 +62,27 @@ public class MapsActivity extends FragmentActivity implements
     private void setUpAlarmMarkers() {
         Marker alarmMarker;
         Circle alarmCircle;
-        LatLng alarmPosition;
         CircleOptions circleOptions;
-        for (GAGeofence alarmGeofence : AlarmStorage.getSavedAlarms()) {
-            alarmPosition = new LatLng(alarmGeofence.getGeofenceLatitude(), alarmGeofence.getGeofenceLongitude());
+        List<LatLng> alarmsPosition = AlarmStorage.getAlarmsPositions();
+        List<Double> alarmsRadius = AlarmStorage.getAlarmsRadius();
+        List<Boolean> alarmsStatus = AlarmStorage.getAlarmsStatus();
+        for (int i = 0; i < AlarmStorage.getAlarmsNumber(); i++) {
             alarmMarker = mMap.addMarker(new MarkerOptions()
                     .title("I'm here!")
-                    .position(alarmPosition).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            if (alarmGeofence.isEnabled()) {
+                    .position(alarmsPosition.get(i)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            if (alarmsStatus.get(i)) {
                 circleOptions = new CircleOptions()
-                        .center(alarmPosition)
-                        .radius(alarmGeofence.getGeofenceRadius());
+                        .center(alarmsPosition.get(i))
+                        .radius(alarmsRadius.get(i))
+                        .fillColor(Color.TRANSPARENT)
+                        .strokeColor(Color.BLUE)
+                        .strokeWidth(3);
                 alarmCircle = mMap.addCircle(circleOptions);
             }
+
         }
     }
+
 
     @Override
     protected void onResume() {
@@ -84,6 +91,7 @@ public class MapsActivity extends FragmentActivity implements
         setUpAlarmMarkers();
         apiClient.connect();
     }
+
 
     @Override
     protected void onPause() {

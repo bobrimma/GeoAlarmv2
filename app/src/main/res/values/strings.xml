@@ -9,5 +9,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="goops_error">Google Play Services error. Please, install or update it.</string>
+    <string name="radius_label_string">Радиус</string>
+    <string name="alarm_switch_label_string">Включен</string>
+    <string name="alarm_add_button_string">Добавить</string>
+    <string name="alarm_name_label_string">Название</string>
 
 </resources>
