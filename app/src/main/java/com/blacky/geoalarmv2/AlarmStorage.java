@@ -95,4 +95,9 @@ public class AlarmStorage {
     public static void deleteAlarm(Integer id){
         savedAlarms.remove(id);
     }
+
+    public static void setAlarmOff(Integer id){
+        savedAlarms.get(id).setEnabled(false);
+
+    }
 }

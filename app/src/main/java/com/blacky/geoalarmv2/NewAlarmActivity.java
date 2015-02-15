@@ -71,7 +71,7 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
                     addGeofence.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_ADD);
                     addGeofence.putExtra(GeofencingService.EXTRA_GEOFENCE, geofence);
                     gfId++;
-                   // startService(addGeofence);
+                    startService(addGeofence);
                 }
                 finish();
                 Toast.makeText(getApplicationContext(), "Alarm was saved", Toast.LENGTH_SHORT).show();

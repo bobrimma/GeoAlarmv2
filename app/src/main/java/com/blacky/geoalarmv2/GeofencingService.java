@@ -24,26 +24,28 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
     public static final String LOG_TAG = "GFService";
     public static final String EXTRA_REQUEST_IDS = "requestId";
     public static final String EXTRA_GEOFENCE = "geofence";
+    public static final String EXTRA_GEOFENCE_ID = "geofenceId";
     public static final String EXTRA_ACTION = "action";
     public static final int ACTION_ADD = 0;
     public static final int ACTION_REMOVE = 1;
+    public static final int ACTION_REMOVE_BY_ID = 2;
     private int action;
     private GoogleApiClient locationClient;
-    private GeofencingRequest gfRequest;
-    List<Geofence> gfList = new ArrayList<>();
-    List<String> gfToRemove = new ArrayList<>();
+    private List<Geofence> gfList = new ArrayList<>();
+    private List<String> gfToRemove = new ArrayList<>();
+
+    public GeofencingService() {
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LOG_TAG, "onStartCommand");
-
+        Log.d(LOG_TAG, "Location service started");
         locationClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
         locationClient.connect();
-
         action = intent.getIntExtra(EXTRA_ACTION, -1);
         switch (action) {
             case ACTION_ADD: {
@@ -52,17 +54,16 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
                 break;
             }
             case ACTION_REMOVE: {
-
+                gfToRemove = intent.getStringArrayListExtra(EXTRA_REQUEST_IDS);
+                break;
             }
-            default: {
-
+            case ACTION_REMOVE_BY_ID: {
+                gfToRemove.add(intent.getStringExtra(EXTRA_GEOFENCE_ID));
+                break;
             }
         }
 
         return super.onStartCommand(intent, flags, startId);
-    }
-
-    public GeofencingService() {
     }
 
     @Override
@@ -72,11 +73,11 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
 
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d(LOG_TAG, "onConnected");
-
+        Log.d(LOG_TAG, "Location client connected");
         switch (action) {
             case ACTION_ADD: {
-                Log.d(LOG_TAG, "Adding geofences to the client");
+                Log.d(LOG_TAG, "Adding geofence to the client");
+                GeofencingRequest gfRequest;
                 gfRequest = new GeofencingRequest.Builder().addGeofences(gfList).build();
                 LocationServices.GeofencingApi
                         .addGeofences(locationClient, gfRequest, getPendingIntent())
@@ -91,7 +92,7 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
                         });
                 break;
             }
-            case ACTION_REMOVE:{
+            case ACTION_REMOVE: ACTION_REMOVE_BY_ID:{
                 Log.d(LOG_TAG, "Removing gf-s from the client");
                 LocationServices.GeofencingApi
                         .removeGeofences(locationClient, gfToRemove)
@@ -104,6 +105,7 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
                                 }
                             }
                         });
+                break;
             }
         }
     }
@@ -119,8 +121,6 @@ public class GeofencingService extends Service implements GoogleApiClient.Connec
     }
 
     private PendingIntent getPendingIntent() {
-        Log.d(LOG_TAG, "getPendingIntent");
-
         Intent transitionService = new Intent(this, GFIntentService.class);
         return PendingIntent.getService(this, 0, transitionService, PendingIntent.FLAG_UPDATE_CURRENT);
     }
