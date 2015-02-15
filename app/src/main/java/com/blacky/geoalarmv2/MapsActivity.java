@@ -18,13 +18,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements
@@ -35,6 +33,8 @@ public class MapsActivity extends FragmentActivity implements
     final static String COORDINATE_TAG = "COORDINATE";
     final static String CONNECTION_TAG = "Google API Connection";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    public static final String ALARM_TAG = "Alarm id";
+    public static final String MARKER_TAG = "I'm here";
 
     private GoogleMap mMap;
     private GoogleApiClient apiClient;
@@ -54,22 +54,26 @@ public class MapsActivity extends FragmentActivity implements
                     .addOnConnectionFailedListener(this)
                     .build();
             apiClient.connect();
-            setUpMapIfNeeded();
-            setUpAlarmMarkers();
+         //   setUpMapIfNeeded();
+          //  setUpAlarmMarkers();
         } else Toast.makeText(this, R.string.goops_error, Toast.LENGTH_SHORT).show();
     }
 
     private void setUpAlarmMarkers() {
-        Marker alarmMarker;
-        Circle alarmCircle;
         CircleOptions circleOptions;
-        List<LatLng> alarmsPosition = AlarmStorage.getAlarmsPositions();
-        List<Double> alarmsRadius = AlarmStorage.getAlarmsRadius();
-        List<Boolean> alarmsStatus = AlarmStorage.getAlarmsStatus();
+        mMap.clear();
+        List<LatLng> alarmsPosition = AlarmStorage.getAllAlarmsPositions();
+        List<Float> alarmsRadius = AlarmStorage.getAllAlarmsRadius();
+        List<Boolean> alarmsStatus = AlarmStorage.getAllAlarmsStatus();
+        List<String> alarmsNames = AlarmStorage.getAllAlarmsNames();
+         List<Integer> alarmsIds = AlarmStorage.getAllAlarmsIds();
         for (int i = 0; i < AlarmStorage.getAlarmsNumber(); i++) {
-            alarmMarker = mMap.addMarker(new MarkerOptions()
-                    .title("I'm here!")
-                    .position(alarmsPosition.get(i)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            mMap.addMarker(new MarkerOptions()
+                    .position(alarmsPosition.get(i))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                    .title("" + alarmsIds.get(i))
+                    .snippet(alarmsNames.get(i)));
+            Log.d("alarmOn","Maps Activity "+alarmsStatus.get(i) );
             if (alarmsStatus.get(i)) {
                 circleOptions = new CircleOptions()
                         .center(alarmsPosition.get(i))
@@ -77,7 +81,7 @@ public class MapsActivity extends FragmentActivity implements
                         .fillColor(Color.TRANSPARENT)
                         .strokeColor(Color.BLUE)
                         .strokeWidth(3);
-                alarmCircle = mMap.addCircle(circleOptions);
+                mMap.addCircle(circleOptions);
             }
 
         }
@@ -113,6 +117,20 @@ public class MapsActivity extends FragmentActivity implements
                     startActivity(newAlarm);
                 }
             });
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    if (marker.getTitle().equals(MARKER_TAG)) {
+                        return false;
+                    } else {
+                        Intent editAlarm = new Intent(MapsActivity.this, EditAlarmActivity.class)
+                                .putExtra(COORDINATE_TAG, marker.getPosition())
+                                .putExtra(ALARM_TAG, marker.getTitle());
+                        startActivity(editAlarm);
+                        return true;
+                    }
+                }
+            });
         }
     }
 
@@ -135,7 +153,7 @@ public class MapsActivity extends FragmentActivity implements
     private void handleNewLocation(Location myLocation) {
         myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
         marker = mMap.addMarker(new MarkerOptions()
-                .title("I'm here!")
+                .title(MARKER_TAG)
                 .position(myLatLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 14));
     }
