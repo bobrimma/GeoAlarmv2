@@ -5,9 +5,16 @@
     <string name="title_activity_maps">Map</string>
     <string name="locateme">Locate me!</string>
     <string name="title_activity_new_alarm">New alarm</string>
+    <string name="title_activity_edit_alarm">Edit alarm</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="goops_error">Google Play Services error. Please, install or update it.</string>
-
+    <string name="radius_label_string">Радиус</string>
+    <string name="alarm_switch_label_string">Включен</string>
+    <string name="alarm_add_button_string">Добавить</string>
+    <string name="alarm_name_label_string">Название</string>
+    <string name="alarm_desc_label_string">Описание</string>
+    <string name="alarm_del_button_string">Удалить</string>
+    <string name="alarm_save_button_string">Сохранить</string>
 </resources>
