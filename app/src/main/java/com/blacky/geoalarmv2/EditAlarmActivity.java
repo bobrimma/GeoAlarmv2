@@ -1,6 +1,7 @@
 package com.blacky.geoalarmv2;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -51,7 +52,7 @@ public class EditAlarmActivity extends ActionBarActivity implements OnMapReadyCa
         Log.d("alarmOn", "Before edit " + alarmOn.isChecked());
 
         // check if the alarm was on before editing
-        if(alarmOn.isChecked()){
+        if (alarmOn.isChecked()) {
             sentIntentToDeleteGeofence();
         }
 
@@ -74,7 +75,7 @@ public class EditAlarmActivity extends ActionBarActivity implements OnMapReadyCa
                 float radius = radiusSeek.getProgress();
                 Log.d("alarmOn", "After Edit " + alarmOn.isChecked());
 
-                AlarmStorage.editAlarm(alarmId,tvName.getText().toString(), tvDescription.getText().toString(),radius, alarmOn.isChecked());
+                AlarmStorage.editAlarm(alarmId, tvName.getText().toString(), tvDescription.getText().toString(), radius, alarmOn.isChecked());
                 if (alarmOn.isChecked()) {
 
                     GAGeofence geofence = new GAGeofence
@@ -132,12 +133,16 @@ public class EditAlarmActivity extends ActionBarActivity implements OnMapReadyCa
         googleMap.setMyLocationEnabled(false);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
         googleMap.addMarker(new MarkerOptions()
-                .title("New alarm")
+                .title("Edit alarm")
                 .position(position));
-        radius = googleMap.addCircle(new CircleOptions().center(position).radius(10));
+        radius = googleMap.addCircle(new CircleOptions().center(position)
+                .radius(radiusSeek.getProgress())
+                .fillColor(Color.TRANSPARENT)
+                .strokeColor(Color.BLUE)
+                .strokeWidth(3));
     }
 
-    private void sentIntentToDeleteGeofence(){
+    private void sentIntentToDeleteGeofence() {
         Intent deleteGeofence = new Intent(getApplicationContext(), GeofencingService.class);
         deleteGeofence.putExtra(GeofencingService.EXTRA_ACTION, GeofencingService.ACTION_REMOVE_BY_ID);
         deleteGeofence.putExtra(GeofencingService.EXTRA_GEOFENCE_ID, new StringBuilder(alarmId).toString());
