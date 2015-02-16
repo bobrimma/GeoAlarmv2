@@ -16,6 +16,7 @@ import java.util.List;
 public class GFIntentService extends IntentService {
 
     public static final String GF_INTENT_SERVICE = "GFIntentService";
+    public static final String EXTRA_ID = "alarmId";
 
     public GFIntentService() {
         super(GF_INTENT_SERVICE);
@@ -48,8 +49,8 @@ public class GFIntentService extends IntentService {
         int id = Integer.parseInt(geofence.getRequestId());
         Notification ntf = new Notification.Builder(getApplicationContext())
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Geofence id: " + id)
-                .setContentText("Transition type: enter. "+AlarmStorage.getAlarmName(id)+" : "+AlarmStorage.getAlarmDescription(id))
+                .setContentTitle("GeoAlarm")
+                .setContentText("Сработал будильник "+AlarmStorage.getAlarmName(id))
                 .setVibrate(new long[]{500, 500})
                 .setContentIntent(openActivityIntent)
                 .setAutoCancel(true)
@@ -58,6 +59,11 @@ public class GFIntentService extends IntentService {
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         nm.notify(transitionType * 100 + id, ntf);
+
+        Intent alarm = new Intent(this, AlarmActivity.class);
+        alarm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        alarm.putExtra(EXTRA_ID, id);
+        startActivity(alarm);
 
         Log.d("GEO", "notification built:" + id);
     }

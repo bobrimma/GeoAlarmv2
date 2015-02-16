@@ -17,4 +17,6 @@
     <string name="alarm_desc_label_string">Описание</string>
     <string name="alarm_del_button_string">Удалить</string>
     <string name="alarm_save_button_string">Сохранить</string>
+    <string name="title_activity_alarm">AlarmActivity</string>
+    <string name="turn_off_button">Выключить</string>
 </resources>
