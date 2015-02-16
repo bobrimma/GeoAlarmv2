@@ -5,11 +5,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -20,13 +17,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCallback {
@@ -75,7 +70,7 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
                     startService(addGeofence);
                 }
                 finish();
-                Toast.makeText(getApplicationContext(), "Alarm was saved", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Сохранено", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -91,13 +86,6 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-
-//        alarmOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//
-//            }
-//        });
     }
 
     @Override
@@ -105,7 +93,8 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
         googleMap.setMyLocationEnabled(false);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
         googleMap.addMarker(new MarkerOptions()
-                .title("New alarm")
+                .title("Новый")
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.alarm_mark))
                 .position(position));
         radius = googleMap.addCircle(new CircleOptions().center(position).radius(10).fillColor(Color.TRANSPARENT)
                 .strokeColor(Color.BLUE)

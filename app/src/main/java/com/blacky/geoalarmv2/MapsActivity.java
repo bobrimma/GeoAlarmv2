@@ -13,6 +13,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,6 +42,7 @@ public class MapsActivity extends FragmentActivity implements
     private Location myLocation;
     private LatLng myLatLng;
     private Marker marker;
+    private LocationRequest mLocationRequest;
 
 
     @Override
@@ -54,8 +56,8 @@ public class MapsActivity extends FragmentActivity implements
                     .addOnConnectionFailedListener(this)
                     .build();
             apiClient.connect();
-         //   setUpMapIfNeeded();
-          //  setUpAlarmMarkers();
+            //   setUpMapIfNeeded();
+            //  setUpAlarmMarkers();
         } else Toast.makeText(this, R.string.goops_error, Toast.LENGTH_SHORT).show();
     }
 
@@ -66,14 +68,14 @@ public class MapsActivity extends FragmentActivity implements
         List<Float> alarmsRadius = AlarmStorage.getAllAlarmsRadius();
         List<Boolean> alarmsStatus = AlarmStorage.getAllAlarmsStatus();
         List<String> alarmsNames = AlarmStorage.getAllAlarmsNames();
-         List<Integer> alarmsIds = AlarmStorage.getAllAlarmsIds();
+        List<Integer> alarmsIds = AlarmStorage.getAllAlarmsIds();
         for (int i = 0; i < AlarmStorage.getAlarmsNumber(); i++) {
             mMap.addMarker(new MarkerOptions()
                     .position(alarmsPosition.get(i))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.alarm_mark))
                     .title("" + alarmsIds.get(i))
                     .snippet(alarmsNames.get(i)));
-            Log.d("alarmOn","Maps Activity "+alarmsStatus.get(i) );
+            Log.d("alarmOn", "Maps Activity " + alarmsStatus.get(i));
             if (alarmsStatus.get(i)) {
                 circleOptions = new CircleOptions()
                         .center(alarmsPosition.get(i))
@@ -93,6 +95,10 @@ public class MapsActivity extends FragmentActivity implements
         super.onResume();
         setUpMapIfNeeded();
         setUpAlarmMarkers();
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         apiClient.connect();
     }
 
@@ -141,11 +147,12 @@ public class MapsActivity extends FragmentActivity implements
         if (myLocation != null) {
             handleNewLocation(myLocation);
         }
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                apiClient, mLocationRequest, this);
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(getApplicationContext(), "Location changed", Toast.LENGTH_SHORT).show();
         marker.remove();
         handleNewLocation(myLocation);
     }
@@ -154,7 +161,8 @@ public class MapsActivity extends FragmentActivity implements
         myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
         marker = mMap.addMarker(new MarkerOptions()
                 .title(MARKER_TAG)
-                .position(myLatLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                .position(myLatLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.location_icon)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 14));
     }
 
