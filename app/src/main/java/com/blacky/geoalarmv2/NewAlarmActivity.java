@@ -1,6 +1,7 @@
 package com.blacky.geoalarmv2;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -106,6 +107,8 @@ public class NewAlarmActivity extends ActionBarActivity implements OnMapReadyCal
         googleMap.addMarker(new MarkerOptions()
                 .title("New alarm")
                 .position(position));
-        radius = googleMap.addCircle(new CircleOptions().center(position).radius(10));
+        radius = googleMap.addCircle(new CircleOptions().center(position).radius(10).fillColor(Color.TRANSPARENT)
+                .strokeColor(Color.BLUE)
+                .strokeWidth(3));
     }
 }
